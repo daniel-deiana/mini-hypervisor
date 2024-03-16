@@ -13,9 +13,9 @@ outb:
   # do not need to subtract anything cause this function
   # has no local variables on its frame
   
-  mov $12(%ebp), %edx # PORT NUMBER
-  mov $8(%ebp), %eax # DATA
-  out %dx, %al 
+  mov 12(%ebp), %edx # PORT NUMBER
+  mov 8(%ebp), %eax # DATA
+  out %al, %dx 
 
   mov %ebp, %esp
   pop %ebp
@@ -30,7 +30,7 @@ inb:
   # clearing the result register
   xor %eax, %eax
 
-  mov $8(%ebp), %edx 
+  mov 8(%ebp), %edx 
   in %dx, %al
 
   mov %ebp, %esp
@@ -42,10 +42,10 @@ outw:
   push %ebp
   mov %esp, %ebp
 
-  mov $8(%ebp), %edx # PORT NUMBER
-  mov $12(%ebp), %eax # DATA
+  mov 12(%ebp), %edx # PORT NUMBER
+  mov 8(%ebp), %eax # DATA
 
-  outw %dx, %ax
+  out %ax, %dx
 
   mov %ebp, %esp
   pop %ebp
@@ -58,8 +58,8 @@ inw:
 
   xor %eax, %eax
 
-  mov $8(%ebp), %edx # PORT NUMBER
-  in %ax, %dx # moving content of port dx into ax 
+  mov 8(%ebp), %edx # PORT NUMBER
+  in %dx, %ax # moving content of port dx into ax 
 
   mov %ebp, %esp
   pop %ebp

@@ -1,6 +1,15 @@
 #include <stdint.h>
 #include "Boot/uvideo.h"
 #include "Boot/printf.h"
+#include "io/io.h"
+
+
+#define FB_COMMAND_PORT         0x3D4
+#define FB_DATA_PORT            0x3D5
+
+/* The I/O port commands */
+#define FB_HIGH_BYTE_COMMAND    14
+#define FB_LOW_BYTE_COMMAND     15
 
 struct IDT_entry {
   uint16_t offs_low;
@@ -92,7 +101,7 @@ uint8_t TSSIOMAP[26 * 4 + 0x2001];
 
 extern void *isrGPF;
 void start_program(void);
-void init_apic(void);
+
 
 extern int regMSW, regCR0;
 
@@ -111,6 +120,9 @@ void run_app(void)
   GDT[7].base_low    = (uint32_t)TSSIOMAP & 0xffff;
   GDT[7].base_middle = ((uint32_t)TSSIOMAP >> 16) & 0xff;
   GDT[7].base_high   = ((uint32_t)TSSIOMAP >> 24) & 0xff;
+
+
+
 
   IDT[13].offs_low  = ((uint32_t)&isrGPF) & 0xffff;
   IDT[13].offs_high = (((uint32_t)&isrGPF) >> 16) & 0xffff;
@@ -132,7 +144,7 @@ void run_app(void)
 	: : : "eax", "memory");
   printf("Going to invoke some real-mode code...\n");
   start_program();
-  initialize_pic();
+
   printf("Returned!\n");
   printf("CR0: %x MSW: %x!\n", regCR0, regMSW);
 

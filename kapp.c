@@ -102,11 +102,11 @@ uint8_t TSSIOMAP[26 * 4 + 0x2001];
 
 extern void *isr32;
 extern void *isrGPF;
-void start_program(void);
+void guest(void);
 
 extern int regMSW, regCR0;
 
-void run_app(void)
+void kmain(void)
 {
   uint16_t *p;
   int trval = 56;
@@ -151,7 +151,9 @@ void run_app(void)
   // testint the interrupt routines
   __asm__ __volatile__("int $0x03");
 
-  start_program();
+  printf("sono tornato dall'isr\n");
+  
+  guest();
   // init_pic(0x20, 0x28);
 
   printf("Returned!\n");

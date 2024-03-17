@@ -56,19 +56,16 @@ generic_interrupt_routine:
 	# we call the commond irq handler passing to it the isr number 
 	# isr number is used to dispatch the correct routine to execute
 	pushal	
-	
 	# nb: when this is called from user mode we need to change the
 	# segment descriptor to use the kernel segments, now we leave this
 	call isr_handler
 	popal
-
 	# this is used to clean up the interrupt number we pushed before  
 	add $4, %esp
 	# restore the interrupt flag
 	sti
-
 	# now we return to what we were doing
-	iret
+	iretl
 
 # -----------------------------------------------------------------
 # ------------------- INTERNAL TIMER ROUTINE S --------------------
@@ -79,6 +76,6 @@ isr32:
 	# pushing the code of the interrupt (used to dispatach later)
 	cli
 	pushl $32
-	call generic_interrupt_routine
+	jmp generic_interrupt_routine
 
 

@@ -4,7 +4,7 @@
 #include "uvideo.h"
 #include "printf.h"
 
-void __attribute__ ((weak)) run_app(void)
+void __attribute__ ((weak)) kmain(void)
 {
   printf("Nothing to do\n");
 }
@@ -73,5 +73,5 @@ void main(struct multiboot_info *mb_info)
     printf("No bootloader name!\n");
   }
 
-  run_app();
+  kmain();
 }

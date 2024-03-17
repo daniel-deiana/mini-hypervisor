@@ -12,9 +12,9 @@ saved_esp: .long	0
 
 .section	.text
 .code32
-.globl start_program
+.globl guest
 
-start_program:
+guest:
 	mov %esp, saved_esp
 
 	# initialize the Task-State Segment's SS0:ESP0 fields

@@ -1,6 +1,6 @@
 #include <stdint.h> 
 #include "pic.h"
-#include "io.h"
+#include "../io/io.h"
 
 
 /*  Inizialmente il PIC mappa le IRQ sugli interrupt della CPU che 
@@ -34,12 +34,16 @@ void init_pic(int offset1, int offset2)
   outb(2, PIC2_DATA);
   io_wait(); // telling to the slave that is slave to itself
 
+
+  // telling to work in 8086 mode (ma che vor di)
   outb(ICW4_8086, PIC1_DATA);
   io_wait();
 
   outb(ICW4_8086, PIC2_DATA);
   io_wait();
 
+
+  // restoring the mask on both PICs
   outb(mask1, PIC1_DATA);
   outb(mask2, PIC2_DATA);
 }

@@ -2,7 +2,8 @@
 #include "Boot/uvideo.h"
 #include "Boot/printf.h"
 #include "io/io.h"
-
+#include "cpu/pic.h"
+#include "cpu/isr.h"
 
 #define FB_COMMAND_PORT         0x3D4
 #define FB_DATA_PORT            0x3D5
@@ -99,9 +100,9 @@ static struct dt_register idtr = {256 * 8, (uint32_t)IDT};
 static struct dt_register gdtr = {8 * 16, (uint32_t)GDT};
 uint8_t TSSIOMAP[26 * 4 + 0x2001];
 
+extern void *isr32;
 extern void *isrGPF;
 void start_program(void);
-
 
 extern int regMSW, regCR0;
 
@@ -121,13 +122,16 @@ void run_app(void)
   GDT[7].base_middle = ((uint32_t)TSSIOMAP >> 16) & 0xff;
   GDT[7].base_high   = ((uint32_t)TSSIOMAP >> 24) & 0xff;
 
-
-
-
   IDT[13].offs_low  = ((uint32_t)&isrGPF) & 0xffff;
   IDT[13].offs_high = (((uint32_t)&isrGPF) >> 16) & 0xffff;
   IDT[13].sel       = 8;
   IDT[13].flags     = /*0x8f*/ 0x8e;
+
+
+  IDT[3].offs_low  = ((uint32_t)&isr32) & 0xffff;
+  IDT[3].offs_high = (((uint32_t)&isr32) >> 16) & 0xffff;
+  IDT[3].sel       = 8;
+  IDT[3].flags     = /*0x8f*/ 0x8e;
 
   asm volatile ("lgdt %0" : : "m" (gdtr));
   asm volatile ("lidt %0" : : "m" (idtr));
@@ -143,7 +147,12 @@ void run_app(void)
 	"\tmovl %%eax,%%ss\n"
 	: : : "eax", "memory");
   printf("Going to invoke some real-mode code...\n");
+
+  // testint the interrupt routines
+  __asm__ __volatile__("int $0x03");
+
   start_program();
+  // init_pic(0x20, 0x28);
 
   printf("Returned!\n");
   printf("CR0: %x MSW: %x!\n", regCR0, regMSW);

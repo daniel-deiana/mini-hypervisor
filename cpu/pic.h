@@ -24,7 +24,7 @@
 #define ICW4_BUF_MASTER	0x0C		/* Buffered mode/master */
 #define ICW4_SFNM	0x10		/* Special fully nested (not) */
 
-  void init_pic(void);
+void init_pic(int offset1, int offset2);
 
 // initialize the pic and remap irq to correct isr's
 #endif

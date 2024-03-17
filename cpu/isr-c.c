@@ -1,6 +1,15 @@
 #include <stdint.h>
-#include "Boot/printf.h"
+#include "../boot/printf.h"
+#include "isr.h"
 
+void isr_handler(regs_t regs) 
+{
+
+  printf("ciao sono dentro l'interrupt n: %x routine definita prima!\n", 
+  regs.intr_number);
+  // uint32_t *handler = isr_handlers[regs.intr_number];
+  // handler(regs);
+};
 
 int emulate_high(unsigned int esp)
 {

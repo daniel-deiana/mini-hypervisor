@@ -8,6 +8,8 @@
 #define PIC2_COMMAND	PIC2
 #define PIC2_DATA	(PIC2+1)
 
+#define PIC1_OFFSET 0x20
+#define PIC2_OFFSET 0x28
 
 /* reinitialize the PIC controllers, giving them specified vector offsets
    rather than 8h and 70h, as configured by default */
@@ -24,7 +26,15 @@
 #define ICW4_BUF_MASTER	0x0C		/* Buffered mode/master */
 #define ICW4_SFNM	0x10		/* Special fully nested (not) */
 
-void init_pic(int offset1, int offset2);
+#define PIC_EOI 0x20
+
+#define IRQ_MASK_SLAVE 4
+
+uint8_t pic_get_mask(int pic_num);
+
+void pic_remap(uint32_t offset1, uint32_t offset2);
+void pic_send_EOI(uint32_t intr_number);
+void pic_unmask_irq(uint16_t irq_mask);
 
 // initialize the pic and remap irq to correct isr's
 #endif

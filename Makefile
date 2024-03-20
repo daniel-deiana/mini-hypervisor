@@ -1,5 +1,5 @@
-CC32=x86_64-elf-gcc -m32
-AS32=x86_64-elf-as --32
+CC32=x86_64-elf-gcc -m32 -g
+AS32=x86_64-elf-as --32 -g 
 CC64=x86_64-elf-gcc -m64
 AS64=x86_64-elf-as --64
 
@@ -11,7 +11,7 @@ LDFLAGS=-nostdlib -Wl,-Bstatic -Wl,-Ttext -Wl,100000 -Wl,--build-id=none
 LDFLAGS=-static -nostdlib -T kern.ld 
 
 BOOT_OBJS=kmain.o head.o trampoline64.o uvideo.o printf.o
-APP_OBJS=kapp.o isr.o isr-c.o test-ring3.o io.o isr.o pic.o
+APP_OBJS=kapp.o isr.o isr-c.o test-ring3.o io.o isr.o pic.o pit.o
 #APP_OBJS=kapp.o
 
 .SUFFIXES:

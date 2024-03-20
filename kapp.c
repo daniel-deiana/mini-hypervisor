@@ -4,6 +4,7 @@
 #include "io/io.h"
 #include "cpu/pic.h"
 #include "cpu/isr.h"
+#include "cpu/pit.h"
 
 #define FB_COMMAND_PORT         0x3D4
 #define FB_DATA_PORT            0x3D5
@@ -100,8 +101,10 @@ static struct dt_register idtr = {256 * 8, (uint32_t)IDT};
 static struct dt_register gdtr = {8 * 16, (uint32_t)GDT};
 uint8_t TSSIOMAP[26 * 4 + 0x2001];
 
+// external symbols
 extern void *isr32;
 extern void *isrGPF;
+
 void guest(void);
 
 extern int regMSW, regCR0;
@@ -122,18 +125,26 @@ void kmain(void)
   GDT[7].base_middle = ((uint32_t)TSSIOMAP >> 16) & 0xff;
   GDT[7].base_high   = ((uint32_t)TSSIOMAP >> 24) & 0xff;
 
+  // GPF 
   IDT[13].offs_low  = ((uint32_t)&isrGPF) & 0xffff;
   IDT[13].offs_high = (((uint32_t)&isrGPF) >> 16) & 0xffff;
   IDT[13].sel       = 8;
   IDT[13].flags     = /*0x8f*/ 0x8e;
 
-
+  // INT3 instruction
   IDT[3].offs_low  = ((uint32_t)&isr32) & 0xffff;
   IDT[3].offs_high = (((uint32_t)&isr32) >> 16) & 0xffff;
   IDT[3].sel       = 8;
   IDT[3].flags     = /*0x8f*/ 0x8e;
 
-  asm volatile ("lgdt %0" : : "m" (gdtr));
+  // IRQ0 
+  IDT[32].offs_low  = ((uint32_t)&isr32) & 0xffff;
+  IDT[32].offs_high = (((uint32_t)&isr32) >> 16) & 0xffff;
+  IDT[32].sel       = 8;
+  IDT[32].flags     = /*0x8f*/ 0x8e;
+
+  asm volatile("sti");
+  asm volatile("lgdt %0" : : "m"(gdtr));
   asm volatile ("lidt %0" : : "m" (idtr));
   asm volatile ("ltr  %0" : : "m" (trval));
   __asm__ __volatile__ (
@@ -148,16 +159,13 @@ void kmain(void)
 	: : : "eax", "memory");
   printf("Going to invoke some real-mode code...\n");
 
-  // testint the interrupt routines
-  __asm__ __volatile__("int $0x03");
-
-  printf("sono tornato dall'isr\n");
   
-  guest();
-  // init_pic(0x20, 0x28);
+  pic_remap(PIC1_OFFSET, PIC2_OFFSET);
+  pic_unmask_irq(0x00);
+  uint8_t pic_mask = pic_get_mask(1);
 
-  printf("Returned!\n");
-  printf("CR0: %x MSW: %x!\n", regCR0, regMSW);
+  
+  pit_init(100);
 
-  asm("hlt");
+  while(1) {}
 }

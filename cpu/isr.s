@@ -3,8 +3,6 @@
 .code32
 
 # ------------------------ ROUTINE DECLARATIONS --------------------------
-
-
 .globl isrGPF
 .globl isr32
 
@@ -53,7 +51,7 @@ terminate_program:
 generic_interrupt_routine:
 
 
-	# we call the commond irq handler passing to it the isr number 
+	# we call the common irq handler passing to it the isr number 
 	# isr number is used to dispatch the correct routine to execute
 	pushal	
 	# nb: when this is called from user mode we need to change the
@@ -67,9 +65,9 @@ generic_interrupt_routine:
 	# now we return to what we were doing
 	iretl
 
+
 # -----------------------------------------------------------------
 # ------------------- INTERNAL TIMER ROUTINE S --------------------
-
 
 isr32: 
 

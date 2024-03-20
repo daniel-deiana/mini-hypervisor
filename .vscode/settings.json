@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "*.s": "gas",
+    "*.S": "gas",
+    "pit.h": "c"
+  }
+}

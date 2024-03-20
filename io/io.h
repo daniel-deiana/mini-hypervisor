@@ -11,7 +11,7 @@ void outw(uint16_t data, uint16_t port);
 
 static inline void io_wait(void) 
 {
-  outb(0x80, 0);
+  outb(0, 0x80);
 }
 
 #endif

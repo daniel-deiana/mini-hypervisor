@@ -11,8 +11,6 @@ void isr_handler(regs_t regs)
   regs.intr_number);
 
   pic_send_EOI(regs.intr_number);
-  
-  
   // request dispatching
     // uint32_t *handler = isr_handlers[regs.intr_number];
     // handler(regs);

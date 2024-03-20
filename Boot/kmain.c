@@ -9,6 +9,8 @@ void __attribute__ ((weak)) kmain(void)
   printf("Nothing to do\n");
 }
 
+// print the main info about memory mappings
+// test
 void main(struct multiboot_info *mb_info)
 {
   clear();

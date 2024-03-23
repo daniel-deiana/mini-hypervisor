@@ -11,6 +11,8 @@
 
 /*print eax, ecx, edx, ebx, esp, ebp, esi, and edi content to screen */
 
+
+
 // state of the cpu that we save entering an isr  
 typedef struct registers 
 {
@@ -25,9 +27,13 @@ typedef struct registers
   uint32_t intr_number;
 } regs_t;
 
+// defines function pointer to isr
+typedef void (*isr_t)(void);
+
 int emulate_high(unsigned int esp);
 
-// common dispatcher for isr 
-void isr_handler(regs_t regs); 
+// common dispatcher for isr
+void isr_handler(regs_t regs);
+void register_isr_handler(isr_t handler_code, uint32_t isr_num);
 
 #endif

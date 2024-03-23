@@ -5,9 +5,29 @@ ENTRY(_start)
 SECTIONS
  {
    . = 0x100000;
-   .text  : { *(.multiboot) *(.text) }
-   .rodata : { *(.rodata) }
-   .data : { *(COMMON) *(.data) _edata = .;}
-   .bss  : { *(.bss)  _end = .;}
+   .text :
+      { 
+        *(.multiboot)
+        *(.text) 
+      }
+   
+   .rodata : 
+      { 
+        *(.rodata) 
+      }
+   
+   .data :
+      {
+        *(COMMON) 
+        *(.data) 
+        _edata = .;
+      }
+
+   .bss  : 
+    { 
+        *(.bss)  
+        _end = .;
+    }
+   
    /DISCARD/  : { *(*) }
  }

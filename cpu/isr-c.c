@@ -1,8 +1,13 @@
 #include <stdint.h>
-
 #include "../boot/printf.h"
 #include "../cpu/pic.h"
 #include "isr.h"
+
+static isr_t isr_handlers[256];
+
+void register_isr_handler(isr_t handler_code, uint32_t isr_num) {
+  isr_handlers[isr_num] = handler_code;
+}
 
 void isr_handler(regs_t regs) 
 {
@@ -10,10 +15,10 @@ void isr_handler(regs_t regs)
   printf("ciao sono dentro l'interrupt n: %x routine definita prima!\n", 
   regs.intr_number);
 
+  isr_t handler = isr_handlers[regs.intr_number];
+  handler();
+  
   pic_send_EOI(regs.intr_number);
-  // request dispatching
-    // uint32_t *handler = isr_handlers[regs.intr_number];
-    // handler(regs);
 };
 
 int emulate_high(unsigned int esp)

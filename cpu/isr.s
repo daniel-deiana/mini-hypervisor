@@ -5,6 +5,7 @@
 # ------------------------ ROUTINE DECLARATIONS --------------------------
 .globl isrGPF
 .globl isr32
+.globl isr33
 
 # -----------------------------------------------------------------
 # -------------- GENERAL PROTECTION FAULT ROUTINE -----------------
@@ -36,6 +37,7 @@ emulated:
 	# Return from GPF handler
 	popl	%ds
 	popal
+	# we need to add 4 because of the error code that has been pushed 
 	add	$4, %esp
 	iretl
 
@@ -59,7 +61,7 @@ generic_interrupt_routine:
 	call isr_handler
 	popal
 	# this is used to clean up the interrupt number we pushed before  
-	add $4, %esp
+	add $8, %esp
 	# restore the interrupt flag
 	sti
 	# now we return to what we were doing
@@ -70,10 +72,20 @@ generic_interrupt_routine:
 # ------------------- INTERNAL TIMER ROUTINE S --------------------
 
 isr32: 
-
 	# pushing the code of the interrupt (used to dispatach later)
 	cli
+	pushl $0
 	pushl $32
 	jmp generic_interrupt_routine
 
+
+# -----------------------------------------------------------------
+# ------------------- PS2 KEYBOARDD INTERRUPTS --------------------
+
+
+is33: 
+	cli
+	pushl $0
+	pushl $33
+	jmp generic_interrupt_routine
 

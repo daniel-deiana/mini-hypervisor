@@ -5,6 +5,7 @@
 #include "cpu/pic.h"
 #include "cpu/isr.h"
 #include "cpu/pit.h"
+#include "cpu/ps2_kbd.h"
 
 #define FB_COMMAND_PORT         0x3D4
 #define FB_DATA_PORT            0x3D5
@@ -114,7 +115,6 @@ void kmain(void)
   uint16_t *p;
   int trval = 56;
 
-  clear();
   printf("Hello from the very stupid hypervisor!\n");
 
   p = (uint16_t *)&TSSIOMAP[25 * 4];
@@ -124,6 +124,12 @@ void kmain(void)
   GDT[7].base_low    = (uint32_t)TSSIOMAP & 0xffff;
   GDT[7].base_middle = ((uint32_t)TSSIOMAP >> 16) & 0xff;
   GDT[7].base_high   = ((uint32_t)TSSIOMAP >> 24) & 0xff;
+
+
+  IDT[13].offs_low  = ((uint32_t)&isrGPF) & 0xffff;
+  IDT[13].offs_high = (((uint32_t)&isrGPF) >> 16) & 0xffff;
+  IDT[13].sel       = 8;
+  IDT[13].flags     = /*0x8f*/ 0x8e;
 
   // GPF 
   IDT[13].offs_low  = ((uint32_t)&isrGPF) & 0xffff;
@@ -143,6 +149,8 @@ void kmain(void)
   IDT[32].sel       = 8;
   IDT[32].flags     = /*0x8f*/ 0x8e;
 
+
+
   asm volatile("sti");
   asm volatile("lgdt %0" : : "m"(gdtr));
   asm volatile ("lidt %0" : : "m" (idtr));
@@ -160,12 +168,13 @@ void kmain(void)
   printf("Going to invoke some real-mode code...\n");
 
   
+  pit_init(100);
   pic_remap(PIC1_OFFSET, PIC2_OFFSET);
   pic_unmask_irq(0x00);
   uint8_t pic_mask = pic_get_mask(1);
 
-  
-  pit_init(100);
+  uint8_t dummy_ps2 = inb(PS2_DATA_REG);
+  printf("ps2 keyboard data port output: %x\n", dummy_ps2);
 
   while(1) {}
 }

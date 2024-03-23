@@ -1,0 +1,10 @@
+{
+  "files.associations": {
+    "*.s": "gas",
+    "*.S": "gas",
+    "stdint.h": "c",
+    "isr.h": "c",
+    "pit.h": "c",
+    "pic.h": "c"
+  }
+}

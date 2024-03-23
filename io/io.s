@@ -1,5 +1,6 @@
 .section .text
 .code32
+
 .globl outb
 .globl inb 
 .globl outw

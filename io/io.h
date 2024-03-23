@@ -9,8 +9,7 @@ uint16_t inw(uint16_t port);
 void outb(uint8_t data, uint16_t port);
 void outw(uint16_t data, uint16_t port);
 
-static inline void io_wait(void) 
-{
+static inline void io_wait(void) {
   outb(0, 0x80);
 }
 

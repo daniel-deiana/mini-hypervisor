@@ -1,11 +1,10 @@
 #define STACK_SIZE			0x4000
-#define MULTIBOOT_HEADER_FLAGS		0x00010003
+#define MULTIBOOT_HEADER_FLAGS		0x00000003
 #define MULTIBOOT_HEADER_MAGIC		0x1BADB002
 
 #define PAGE_SIZE 0x1000
 
-
-.section .multiboot.data, "aw"
+.section .multiboot.data, "a"
 .align 4
 
 header:
@@ -58,32 +57,34 @@ t3:
 
   movl $(page_directory_table - 0xC0000000), %ecx 
   movl %ecx, %cr3
-  movl %cr0, %ecx
 
+  movl %cr0, %ecx
 	orl $0x80010000, %ecx
 	movl %ecx, %cr0
 
 	# Jump to higher half with an absolute jump. 
-	jmp t4
+
+ 	jmp t4
 
 
 .section .text
 .code32
 t4:  
+
+	movl $0, page_directory_table + 0
+
+
   movl %cr3, %ecx
 	movl %ecx, %cr3
 
 	movl	$(stack + STACK_SIZE), %esp
   cli
-
-check:  
 	//cmp $0x36d76289, %eax
 	cmp $0x2BADB002, %eax
 	jne wrong_multiboot_magic 
 	pushl	%ebx
 
-	jmp kmain
-
+	jmp trampoline
 
 wrong_multiboot_magic:
 	mov $'1', %eax

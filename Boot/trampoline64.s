@@ -1,4 +1,4 @@
-.text
+.section .text
 .code32
 .globl trampoline
 .globl error

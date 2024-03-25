@@ -15,8 +15,12 @@ APP_OBJS=kapp.o isr.o isr-c.o test-ring3.o io.o isr.o pic.o pit.o ps2_kbd.o
 #APP_OBJS=kapp.o
 
 .SUFFIXES:
+
+monitor:
+	telnet 127.0.0.1 1235
+
 run: 
-	qemu-system-x86_64 -d int -no-reboot -kernel kernel  -s -S -machine type=pc-i440fx-3.1
+	qemu-system-x86_64 -d int -no-reboot -kernel kernel  -s -S -machine type=pc-i440fx-3.1 -monitor telnet:127.0.0.1:1235,server,nowait;
 
 
 kernel: $(BOOT_OBJS) $(APP_OBJS)

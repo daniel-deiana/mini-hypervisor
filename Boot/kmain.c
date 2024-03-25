@@ -4,10 +4,6 @@
 #include "uvideo.h"
 #include "printf.h"
 
-void __attribute__ ((weak)) kmain(void)
-{
-  printf("Nothing to do\n");
-}
 
 // print the main info about memory mappings
 // test
@@ -59,7 +55,7 @@ void main(struct multiboot_info *mb_info)
       struct multiboot_mmap_entry *mmap;
 
       mmap = (struct multiboot_mmap_entry *)mmap_addr;
-//      printf("Addr: %x\n", mmap_addr);
+        printf("Addr: %x\n", mmap_addr);
         printf("    %x %x --- %x %x (%x)\n",
                (uint32_t)(mmap->addr >> 32), (uint32_t)mmap->addr,
                (uint32_t)((mmap->addr + mmap->len) >> 32), (uint32_t)(mmap->addr + mmap->len),

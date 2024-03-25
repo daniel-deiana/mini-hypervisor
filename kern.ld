@@ -4,30 +4,46 @@ ENTRY(_start)
 
 SECTIONS
  {
-   . = 0x100000;
-   .text :
-      { 
-        *(.multiboot)
-        *(.text) 
-      }
-   
-   .rodata : 
-      { 
-        *(.rodata) 
-      }
-   
-   .data :
-      {
-        *(COMMON) 
-        *(.data) 
-        _edata = .;
-      }
+. = 0x00100000;
 
-   .bss  : 
+_kernel_p_start = .; 
+
+.multiboot.data : {
+  *(.multiboot.data)
+}
+
+.multiboot.text : {
+  *(.multiboot.text)
+}
+
+. += 0xC0000000;
+
+.text ALIGN(4K)  : AT(ADDR(.text) - 0xC0000000)
     { 
-        *(.bss)  
-        _end = .;
+      *(.text) 
     }
-   
-   /DISCARD/  : { *(*) }
+
+.rodata ALIGN(4K) : AT(ADDR(.rodata) - 0xC0000000) 
+    { 
+      *(.rodata) 
+    }
+
+.data ALIGN(4K) : AT(ADDR(.data) - 0xC0000000)
+    {
+      *(COMMON) 
+      *(.data) 
+      _edata = .;
+    }
+_data_p_end = . - 0xC0000000;  
+
+.bss ALIGN(4K) : AT(ADDR(.bss) - 0xC0000000) 
+  { 
+      *(.bss)  
+      _end = .;
+  }
+
+_bss_p_end = . - 0xC0000000;
+_kernel_p_end = . - 0xC0000000;
+
+/DISCARD/  : { *(*) }
  }

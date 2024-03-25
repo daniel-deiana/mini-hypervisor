@@ -15,7 +15,7 @@ void clear(void)
   x = 0;
   y = 0;
   color = char_color(grey, black);
-  screen = (uint16_t*)0xB8000;
+  screen = (uint16_t*)0xC03FF000;
   for (i = 0; i < screen_height; i++) {
     for (j = 0; j < screen_width; j++) {
       screen[i * screen_width + j] = vga_entry(' ', color);

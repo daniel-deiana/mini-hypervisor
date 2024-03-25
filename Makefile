@@ -1,4 +1,4 @@
-CC32=x86_64-elf-gcc -m32 -g
+CC32=x86_64-elf-gcc -m32 -g 
 AS32=x86_64-elf-as --32 -g 
 CC64=x86_64-elf-gcc -m64
 AS64=x86_64-elf-as --64
@@ -15,10 +15,14 @@ APP_OBJS=kapp.o isr.o isr-c.o test-ring3.o io.o isr.o pic.o pit.o ps2_kbd.o
 #APP_OBJS=kapp.o
 
 .SUFFIXES:
+run: 
+	qemu-system-x86_64 -d int -no-reboot -kernel kernel  -s -S -machine type=pc-i440fx-3.1
+
+
 kernel: $(BOOT_OBJS) $(APP_OBJS)
 	$(CC) $(LDFLAGS) $^ -o kernel
 
-head.o: Boot/head.S
+head.o: boot/head.S
 	$(CC) -c Boot/head.S
 
 # regole per compilare i file .c in .s 

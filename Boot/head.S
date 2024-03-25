@@ -2,60 +2,98 @@
 #define MULTIBOOT_HEADER_FLAGS		0x00010003
 #define MULTIBOOT_HEADER_MAGIC		0x1BADB002
 
-.section .multiboot
+#define PAGE_SIZE 0x1000
+
+
+.section .multiboot.data, "aw"
 .align 4
-
-/*
-struct multiboot_header
-{
-  multiboot_uint32_t magic;
-  multiboot_uint32_t flags; // Feature flags.
-
-  multiboot_uint32_t checksum;
-
-  // These are only valid if MULTIBOOT_AOUT_KLUDGE is set.
-  multiboot_uint32_t header_addr;
-  multiboot_uint32_t load_addr;
-  multiboot_uint32_t load_end_addr;
-  multiboot_uint32_t bss_end_addr;
-  multiboot_uint32_t entry_addr;
-
-  // These are only valid if MULTIBOOT_VIDEO_MODE is set.
-  multiboot_uint32_t mode_type;
-  multiboot_uint32_t width;
-  multiboot_uint32_t height;
-  multiboot_uint32_t depth;
-};
-*/
 
 header:
 	.long	MULTIBOOT_HEADER_MAGIC
 	.long	MULTIBOOT_HEADER_FLAGS
 	.long	-(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
-        .long   header
-        .long   header
-        .long   _edata
-        .long   _end
-        .long   _start
-.text
-.code32
-.globl _start
-_start:
-	movl	$(stack + STACK_SIZE), %esp
+    .long _kernel_p_start
+    .long _kernel_p_start
+    .long _data_p_end
+    .long _bss_p_end
+    .long _start 
 
-	pushl	$0
-	popf
+.section .multiboot.text, "ax"
+.global _start
+_start:
+  
+  // setting up identity paging and higher kernel paging  
+  // edi punta alla page directory in memoria 
+  movl $(page_table1 - 0xC0000000), %edi
+
+  // current physical address stored in esi
+  movl $0, %esi
+  
+  // number of physical pages to map (of first table)
+  movl $1023, %ecx
+
+t1:
+  
+  // mapping the kernel physical addresses in table1 
+  cmpl $_kernel_p_start, %esi 
+  jl t2
+  cmpl $(_kernel_p_end - 0xC0000000), %esi
+  jge t3
+
+  movl %esi, %edx 
+  orl $0x003, %edx
+  movl %edx, (%edi)
+
+t2:
+
+  addl $4096, %esi
+  addl $4, %edi
+  loop t1
+
+t3:
+  // setting up 2 directory entries, one for identity one for higher half
+	movl $(0x000B8000 | 0x003), page_table1 - 0xC0000000 + 1023 * 4
+  movl $(page_table1 - 0xC0000000 + 0x003), page_directory_table - 0xC0000000 + 0
+	movl $(page_table1 - 0xC0000000 + 0x003), page_directory_table - 0xC0000000 + 768 * 4
+
+  movl $(page_directory_table - 0xC0000000), %ecx 
+  movl %ecx, %cr3
+  movl %cr0, %ecx
+
+	orl $0x80010000, %ecx
+	movl %ecx, %cr0
+
+	# Jump to higher half with an absolute jump. 
+	jmp t4
+
+
+.section .text
+.code32
+t4:  
+  movl %cr3, %ecx
+	movl %ecx, %cr3
+
+	movl	$(stack + STACK_SIZE), %esp
+  cli
+
+check:  
 	//cmp $0x36d76289, %eax
 	cmp $0x2BADB002, %eax
 	jne wrong_multiboot_magic 
 	pushl	%ebx
 
-	jmp trampoline
+	jmp kmain
+
 
 wrong_multiboot_magic:
 	mov $'1', %eax
 	jmp error
 
-.bss
+.section .bss
 stack:
 	.skip STACK_SIZE 
+
+page_directory_table:
+  .skip PAGE_SIZE
+page_table1:
+  .skip PAGE_SIZE

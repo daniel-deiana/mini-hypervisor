@@ -31,8 +31,8 @@ c0101544 l     F .text	000000e1 itoa
 00000000 l    df *ABS*	00000000 kapp.c
 c0103000 l     O .data	00000080 GDT
 c010d0a0 l     O .bss	00000800 IDT
-c0103080 l     O .data	00000006 idtr
-c0103088 l     O .data	00000006 gdtr
+c0103080 l     O .data	00000006 gdtr
+c0103088 l     O .data	00000006 idtr
 00000000 l    df *ABS*	00000000 isr.o
 c01018fb l       .text	00000000 emulated
 c0101901 l       .text	00000000 terminate_program
@@ -402,7 +402,7 @@ c0101313:	b8 01 00 00 80       	mov    $0x80000001,%eax
 c0101318:	0f a2                	cpuid
 c010131a:	81 e2 00 00 00 20    	and    $0x20000000,%edx
 c0101320:	74 0e                	je     c0101330 <no_long_mode>
-c0101322:	e8 ca ff ff ff       	call   c01012f1 <trampoline>
+c0101322:	e8 d9 fc ff ff       	call   c0101000 <main>
 c0101327:	eb 32                	jmp    c010135b <end>
 
 c0101329 <no_cpuid>:
@@ -837,8 +837,8 @@ c0101839:	66 c7 05 a2 d1 10 c0 	movw   $0x8,0xc010d1a2
 c0101840:	08 00 
 c0101842:	c6 05 a5 d1 10 c0 8e 	movb   $0x8e,0xc010d1a5
 c0101849:	fb                   	sti
-c010184a:	0f 01 15 88 30 10 c0 	lgdtl  0xc0103088
-c0101851:	0f 01 1d 80 30 10 c0 	lidtl  0xc0103080
+c010184a:	0f 01 15 80 30 10 c0 	lgdtl  0xc0103080
+c0101851:	0f 01 1d 88 30 10 c0 	lidtl  0xc0103088
 c0101858:	0f 00 5d ec          	ltr    -0x14(%ebp)
 c010185c:	ea 63 18 10 c0 08 00 	ljmp   $0x8,$0xc0101863
 c0101863:	b8 10 00 00 00       	mov    $0x10,%eax
@@ -998,7 +998,7 @@ c01019db:	e8 45 fc ff ff       	call   c0101625 <printf>
 c01019e0:	83 c4 10             	add    $0x10,%esp
 c01019e3:	8b 45 ec             	mov    -0x14(%ebp),%eax
 c01019e6:	8b 00                	mov    (%eax),%eax
-c0101c01010309e8:	25 ff ff f8 00       	and    $0xf8ffff,%eax
+c01019e8:	25 ff ff f8 00       	and    $0xf8ffff,%eax
 c01019ed:	3d 0f 20 c0 00       	cmp    $0xc0200f,%eax
 c01019f2:	0f 85 9d 00 00 00    	jne    c0101a95 <emulate_high+0x122>
 c01019f8:	83 ec 0c             	sub    $0xc,%esp

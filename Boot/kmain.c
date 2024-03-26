@@ -10,7 +10,7 @@
 void main(struct multiboot_info *mb_info)
 {
   clear();
-
+  
   printf("MB Info: %x\n", (uint32_t)mb_info);
   printf ("Multiboot Flags = 0x%x\n", mb_info->flags);
 
@@ -70,6 +70,6 @@ void main(struct multiboot_info *mb_info)
   } else {
     printf("No bootloader name!\n");
   }
-
+  
   kmain();
 }

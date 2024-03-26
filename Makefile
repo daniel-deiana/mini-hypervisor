@@ -16,6 +16,9 @@ APP_OBJS=kapp.o isr.o isr-c.o test-ring3.o io.o isr.o pic.o pit.o ps2_kbd.o
 
 .SUFFIXES:
 
+debug:
+	gdb -x debug.gdb
+
 monitor:
 	telnet 127.0.0.1 1235
 

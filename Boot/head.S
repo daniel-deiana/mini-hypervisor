@@ -34,7 +34,7 @@ _start:
 t1:
   
   // mapping the kernel physical addresses in table1 
-  cmpl $_kernel_p_start, %esi 
+  cmpl $4096, %esi 
   jl t2
   cmpl $(_kernel_p_end - 0xC0000000), %esi
   jge t3
@@ -71,8 +71,7 @@ t3:
 .code32
 t4:  
 
-	movl $0, page_directory_table + 0
-
+	// movl $0, page_directory_table + 0
 
   movl %cr3, %ecx
 	movl %ecx, %cr3

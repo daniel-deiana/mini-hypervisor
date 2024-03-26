@@ -98,8 +98,8 @@ static struct GDT_entry GDT[16] = {
 };
 
 static struct IDT_entry IDT[256];
-static struct dt_register idtr = {256 * 8, (uint32_t)IDT};
-static struct dt_register gdtr = {8 * 16, (uint32_t)GDT};
+static struct dt_register gdtr = {8 * 16, (uint32_t*)GDT};
+static struct dt_register idtr = {256 * 8, (uint32_t*)IDT};
 uint8_t TSSIOMAP[26 * 4 + 0x2001];
 
 // external symbols
@@ -148,8 +148,6 @@ void kmain(void)
   IDT[32].offs_high = (((uint32_t)&isr32) >> 16) & 0xffff;
   IDT[32].sel       = 8;
   IDT[32].flags     = /*0x8f*/ 0x8e;
-
-
 
   asm volatile("sti");
   asm volatile("lgdt %0" : : "m"(gdtr));

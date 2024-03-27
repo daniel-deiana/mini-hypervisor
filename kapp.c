@@ -6,6 +6,9 @@
 #include "cpu/isr.h"
 #include "cpu/pit.h"
 #include "cpu/ps2_kbd.h"
+#include "cpu/pmm.h"
+#include "cpu/pit.h"
+
 
 #define FB_COMMAND_PORT         0x3D4
 #define FB_DATA_PORT            0x3D5
@@ -98,13 +101,14 @@ static struct GDT_entry GDT[16] = {
 };
 
 static struct IDT_entry IDT[256];
-static struct dt_register gdtr = {8 * 16, (uint32_t*)GDT};
-static struct dt_register idtr = {256 * 8, (uint32_t*)IDT};
+static struct dt_register gdtr = {8 * 16, (uint32_t)&GDT};
+static struct dt_register idtr = {256 * 8, (uint32_t)&IDT};
 uint8_t TSSIOMAP[26 * 4 + 0x2001];
 
 // external symbols
+extern void *gpf_routine;
+extern void *page_fault_routine;
 extern void *isr32;
-extern void *isrGPF;
 
 void guest(void);
 
@@ -114,6 +118,8 @@ void kmain(void)
 {
   uint16_t *p;
   int trval = 56;
+
+  clear();
 
   printf("Hello from the very stupid hypervisor!\n");
 
@@ -126,22 +132,15 @@ void kmain(void)
   GDT[7].base_high   = ((uint32_t)TSSIOMAP >> 24) & 0xff;
 
 
-  IDT[13].offs_low  = ((uint32_t)&isrGPF) & 0xffff;
-  IDT[13].offs_high = (((uint32_t)&isrGPF) >> 16) & 0xffff;
+  IDT[13].offs_low  = ((uint32_t)&gpf_routine) & 0xffff;
+  IDT[13].offs_high = (((uint32_t)&gpf_routine) >> 16) & 0xffff;
   IDT[13].sel       = 8;
   IDT[13].flags     = /*0x8f*/ 0x8e;
 
-  // GPF 
-  IDT[13].offs_low  = ((uint32_t)&isrGPF) & 0xffff;
-  IDT[13].offs_high = (((uint32_t)&isrGPF) >> 16) & 0xffff;
-  IDT[13].sel       = 8;
-  IDT[13].flags     = /*0x8f*/ 0x8e;
-
-  // INT3 instruction
-  IDT[3].offs_low  = ((uint32_t)&isr32) & 0xffff;
-  IDT[3].offs_high = (((uint32_t)&isr32) >> 16) & 0xffff;
-  IDT[3].sel       = 8;
-  IDT[3].flags     = /*0x8f*/ 0x8e;
+  IDT[14].offs_low  = ((uint32_t)&page_fault_routine) & 0xffff;
+  IDT[14].offs_high = (((uint32_t)&page_fault_routine) >> 16) & 0xffff;
+  IDT[14].sel       = 8;
+  IDT[14].flags     = /*0x8f*/ 0x8e;
 
   // IRQ0 
   IDT[32].offs_low  = ((uint32_t)&isr32) & 0xffff;
@@ -149,10 +148,16 @@ void kmain(void)
   IDT[32].sel       = 8;
   IDT[32].flags     = /*0x8f*/ 0x8e;
 
-  asm volatile("sti");
-  asm volatile("lgdt %0" : : "m"(gdtr));
+
+  register_isr_handler(&gpf_handler, 13);
+  register_isr_handler(&page_fault_handler, 14);
+  register_isr_handler(&pit_handler, 32);
+
+  asm volatile ("lgdt %0" : : "m"(gdtr));
   asm volatile ("lidt %0" : : "m" (idtr));
   asm volatile ("ltr  %0" : : "m" (trval));
+
+
   __asm__ __volatile__ (
 	"\tljmp $8, $1f\n"
 	"\t1:\n"
@@ -164,15 +169,20 @@ void kmain(void)
 	"\tmovl %%eax,%%ss\n"
 	: : : "eax", "memory");
   printf("Going to invoke some real-mode code...\n");
+  asm volatile ("sti");
+
 
   
-  pit_init(100);
   pic_remap(PIC1_OFFSET, PIC2_OFFSET);
   pic_unmask_irq(0x00);
+  pit_init(100);
   uint8_t pic_mask = pic_get_mask(1);
 
   uint8_t dummy_ps2 = inb(PS2_DATA_REG);
   printf("ps2 keyboard data port output: %x\n", dummy_ps2);
 
-  while(1) {}
+  while(1) 
+  {
+    clear();
+  }
 }

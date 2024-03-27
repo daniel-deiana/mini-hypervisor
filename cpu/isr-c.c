@@ -16,22 +16,30 @@ void isr_handler(regs_t regs)
   regs.intr_number);
 
   isr_t handler = isr_handlers[regs.intr_number];
-  handler();
   
   pic_send_EOI(regs.intr_number);
+  handler(&regs);
 };
+
+void page_fault_handler(regs_t* regs) 
+{
+  printf("page_fault_handler: ERROR_CODE %x\n", regs->error_code);
+  printf("page_fault_handler: EIP che ha generato il fault:  %x\n", regs->eip);
+}
+
+void gpf_handler(regs_t* regs) 
+{
+  printf("gpf_handler: ERROR_CODE %x\n", regs->error_code);
+  printf("gpf_handler: EIP che ha generato il fault:  %x\n", regs->eip);
+}
+
+/*
 
 int emulate_high(unsigned int esp)
 {
-  /* Memory address of the faulting instruction */
-  /* +36 because before calling emulate i pushed all main registers
-    with the pushal instr. so 32 + 4. the 4 is for the eip saved when the fault happened*/
-  unsigned int *addr = (unsigned int *)(esp + 36);
-  /* The faulty instruction itself, as 32-bit number */
   uint32_t *p = (unsigned int *)*addr;
 
-  /*print eax, ecx, edx, ebx, esp, ebp, esi, and edi content to screen */
-
+  
   uint32_t *stack_addr = (unsigned int *)(esp);
 
   for (int i = 0; i <= 7; i++) {
@@ -46,7 +54,6 @@ int emulate_high(unsigned int esp)
 
     printf("    It is 'mov cr0, <something>' ---> Emulate it!\n");
 
-    /* <something> is a register... Find its index! */
     reg = (*p >> 16) & 0x07;
     reg = ~reg + 1;
     reg = reg + 7;
@@ -68,3 +75,4 @@ int emulate_high(unsigned int esp)
   printf("    Not emulated instruction: stop!\n");
   return 0;
 }
+*/

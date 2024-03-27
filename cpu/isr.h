@@ -25,11 +25,15 @@ typedef struct registers
   uint32_t ecx;
   uint32_t eax;
   uint32_t intr_number;
+  uint32_t error_code;
+  uint32_t eip;
 } regs_t;
 
 // defines function pointer to isr
-typedef void (*isr_t)(void);
+typedef void (*isr_t)(regs_t*);
 
+void gpf_handler(regs_t* regs);
+void page_fault_handler(regs_t* regs);
 int emulate_high(unsigned int esp);
 
 // common dispatcher for isr

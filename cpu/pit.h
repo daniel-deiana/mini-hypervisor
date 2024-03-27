@@ -9,7 +9,7 @@
 
 #define RATE_GENERATOR_CMD 0x18
 
-static void pit_handler(void);
+void pit_handler(regs_t *regs);
 void pit_init(uint32_t frequency);
 
 #endif

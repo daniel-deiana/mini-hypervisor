@@ -4,15 +4,11 @@
 #include "../boot/printf.h"
 #include "../io/io.h"
 
-static void pit_handler(void) {
+void pit_handler(regs_t *regs) {
   printf("sono all interno dell handler per il timer\n");
 }
 
 void pit_init(uint32_t frequency) {
-
-  // set the handler for timer interrupts
-  register_isr_handler(&pit_handler, 32);
-
   // test: setting the pit to generate periodical IRQ0 signalss
   uint32_t divisor = 1193180 / frequency;
 

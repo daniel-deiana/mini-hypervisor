@@ -7,12 +7,11 @@ CC=$(CC32)
 AS=$(AS32)
 
 CFLAGS=-fno-pic -fno-stack-protector -ffreestanding -g -Wall -O0
-LDFLAGS=-nostdlib -Wl,-Bstatic -Wl,-Ttext -Wl,100000 -Wl,--build-id=none 
+LDFLAGS=-fno-pic -nostdlib -Wl,-Bstatic -Wl,-Ttext -Wl,100000 -Wl,--build-id=none 
 LDFLAGS=-static -nostdlib -T kern.ld 
 
 BOOT_OBJS=kmain.o head.o trampoline64.o uvideo.o printf.o
-APP_OBJS=kapp.o isr.o isr-c.o test-ring3.o io.o isr.o pic.o pit.o ps2_kbd.o
-#APP_OBJS=kapp.o
+APP_OBJS=kapp.o isr.o isr-c.o test-ring3.o io.o isr.o pic.o pit.o
 
 .SUFFIXES:
 
@@ -53,5 +52,4 @@ head.o: boot/head.S
 # pulizia dei vari .o
 clean:
 	rm -f *.o
-	rm -f kmain.s printf.s
 	rm -f kernel 

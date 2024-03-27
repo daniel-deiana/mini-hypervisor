@@ -4,7 +4,6 @@
 #include "uvideo.h"
 #include "printf.h"
 
-
 // print the main info about memory mappings
 // test
 void main(struct multiboot_info *mb_info)

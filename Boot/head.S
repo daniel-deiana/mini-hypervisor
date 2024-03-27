@@ -77,7 +77,9 @@ t4:
 	movl %ecx, %cr3
 
 	movl	$(stack + STACK_SIZE), %esp
-  cli
+  push $0
+  popf
+  
 	//cmp $0x36d76289, %eax
 	cmp $0x2BADB002, %eax
 	jne wrong_multiboot_magic 
@@ -90,10 +92,9 @@ wrong_multiboot_magic:
 	jmp error
 
 .section .bss
-stack:
-	.skip STACK_SIZE 
-
 page_directory_table:
   .skip PAGE_SIZE
 page_table1:
   .skip PAGE_SIZE
+stack:
+	.skip STACK_SIZE 

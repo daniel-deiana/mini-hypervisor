@@ -5,6 +5,7 @@
     "stdint.h": "c",
     "isr.h": "c",
     "pit.h": "c",
-    "pic.h": "c"
+    "pic.h": "c",
+    "printf.h": "c"
   }
 }

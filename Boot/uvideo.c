@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "uvideo.h"
 
-static const unsigned int screen_width  = 60;
+static const unsigned int screen_width  = 80;
 static const unsigned int screen_height = 25;
 
 static unsigned int x, y;

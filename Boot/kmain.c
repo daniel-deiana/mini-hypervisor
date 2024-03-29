@@ -9,7 +9,10 @@
 void main(struct multiboot_info *mb_info)
 {
   clear();
-  
+
+  uint32_t mem_end;
+  uint32_t mem_start; 
+
   printf("MB Info: %x\n", (uint32_t)mb_info);
   printf ("Multiboot Flags = 0x%x\n", mb_info->flags);
 
@@ -59,6 +62,11 @@ void main(struct multiboot_info *mb_info)
                (uint32_t)(mmap->addr >> 32), (uint32_t)mmap->addr,
                (uint32_t)((mmap->addr + mmap->len) >> 32), (uint32_t)(mmap->addr + mmap->len),
                mmap->type); 
+      
+      if (mmap->type == 1) {
+        mem_start = mmap->addr;
+        mem_end = mmap->addr + mmap->len;
+      }
 
       mmap_addr += mmap->size + 4;
     }
@@ -70,5 +78,5 @@ void main(struct multiboot_info *mb_info)
     printf("No bootloader name!\n");
   }
   
-  kmain();
+  kmain(mem_start,mem_end);
 }

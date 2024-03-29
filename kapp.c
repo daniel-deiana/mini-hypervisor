@@ -8,6 +8,8 @@
 #include "cpu/ps2_kbd.h"
 #include "cpu/pmm.h"
 #include "cpu/pit.h"
+#include "cpu/paging.h"
+
 
 
 #define FB_COMMAND_PORT         0x3D4
@@ -114,7 +116,7 @@ void guest(void);
 
 extern int regMSW, regCR0;
 
-void kmain(void)
+void kmain(uint32_t mem_start, uint32_t mem_end)
 {
   uint16_t *p;
   int trval = 56;
@@ -148,6 +150,7 @@ void kmain(void)
   IDT[32].sel       = 8;
   IDT[32].flags     = /*0x8f*/ 0x8e;
 
+  pmm_init(_kernel_p_start, _kernel_p_end, mem_end);
 
   register_isr_handler(&gpf_handler, 13);
   register_isr_handler(&page_fault_handler, 14);
@@ -171,8 +174,7 @@ void kmain(void)
   printf("Going to invoke some real-mode code...\n");
   asm volatile ("sti");
 
-
-  
+  paging_test();
   pic_remap(PIC1_OFFSET, PIC2_OFFSET);
   pic_unmask_irq(0x00);
   pit_init(100);

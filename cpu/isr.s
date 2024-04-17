@@ -6,7 +6,7 @@
 .globl gpf_routine
 .globl isr32
 .globl isr33
-
+.globl emulate_error
 
 
 # -----------------------------------------------------------------
@@ -84,3 +84,21 @@ gpf_routine:
 	cli
 	pushl $13
 	jmp generic_exception_routine
+
+
+#+---------------------------------------------------------------+
+#+------------------------ Emulation ----------------------------+
+#+---------------------------------------------------------------+
+
+# This routine is called when emulating an instrucion is not possible
+# We simoly return to the kernel code by restoring the esp saved when
+# we jumped into user mode 
+emulate_error:
+
+# We are still in user mode, we need to restore the ds register to
+# point to kernel data segment
+mov $16, %ax
+mov %ax, %ds
+
+mov saved_esp, %esp
+ret 

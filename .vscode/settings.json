@@ -8,6 +8,7 @@
     "pic.h": "c",
     "printf.h": "c",
     "paging.h": "c",
-    "uvideo.h": "c"
+    "uvideo.h": "c",
+    "pmm.h": "c"
   }
 }

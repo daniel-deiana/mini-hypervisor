@@ -1,6 +1,13 @@
 #include "paging.h"
 #include "pmm.h"
 
+// Guest shadow paging structures
+//+------------------------------------------------------------+
+
+
+
+//+------------------------------------------------------------+
+
 static page_table *page_directory = &page_directory_table;
 
 // NB: il codice causa page fault, controllare bene i mapping
@@ -24,3 +31,15 @@ void vmm_paging_test(void) {
 void * vmm_allocate_page(vaddr_t page_vaddr) {
 
 }
+
+
+/*
+  This function Initializes a shadow page table for a guest virtual machine
+  First it copies the hypervisor traductions, then intializes all other entries to 0 
+*/
+int vmm_init_shadow_table() {
+  /* Modify the write protection of the guest page table */
+  
+}
+
+

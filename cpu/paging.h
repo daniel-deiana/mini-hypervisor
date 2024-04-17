@@ -28,4 +28,7 @@ typedef struct page_table {
 
 void vmm_paging_test(void);
 
+//+--------------------------+
+int vmm_init_shadow_table(void);
+
 #endif

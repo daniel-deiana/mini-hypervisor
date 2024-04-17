@@ -1,3 +1,6 @@
+#define PAGE_SIZE 0x1000
+
+
 .section	.data
 #------------------------------------------------------------------
 .globl saved_esp
@@ -41,13 +44,24 @@ trapdemo: # this procedure will be executed in Ring 3
 	movl %cr0, %edx		# current CR0 contents
 	mov	%edx, regCR0		# written to a variable
 
-	# Test shadow paging
-	#+----------------------------------------------------------------+
 	
-	#+----------------------------------------------------------------+
+	//+--------------------------------------------------------------+
+
+	/*
+		Guest tries to update the value of cr3 by putting the address of
+		its own page table directory
+	*/
+f1:	movl $guest_page_directory, %eax
+		movl %eax, %cr3
+
+		
+
+	/* Guest modifies the value of cr0 to enable paging */
+
+	//+--------------------------------------------------------------+
 	
 	# then we execute the unprivileged 'smswl' instruction
-	smswl	%eax			# current MSW contents
+f2:	smswl	%eax			# current MSW contents
 	mov	%eax, regMSW		# written to a variable
 
 	# now we try to execute the privileged 'hlt' instruction
@@ -56,10 +70,15 @@ trapdemo: # this procedure will be executed in Ring 3
 #------------------------------------------------------------------
 	.align	16			# ensure stack alignment
 	.space	512			# region for ring3 stack
-
 tos3:					# label for the stacktop
 .section	.data
 	.align	0x1000
+
+guest_page_directory:
+	.skip 0x1000
+guest_page_table1:
+	.skip 0x1000 
+
 
 #------------------------------------------------------------------
 .end

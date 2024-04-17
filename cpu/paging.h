@@ -6,7 +6,6 @@
 extern void page_directory_table(void);
 extern void page_table_tmp(void);
 
-
 #define PAGE_SIZE  4096
 #define PT_ENTRIES 1024
 
@@ -18,14 +17,15 @@ extern void page_table_tmp(void);
 #define PTE_PCD 1 << 4
 #define PTE_A   1 << 5
 #define PTE_AVL 1 << 6
-#define PTE_PS  1 << 7   
+#define PTE_PS  1 << 7
 
+typedef uint8_t vaddr_t;
 typedef uint32_t pt_entry;
 
 typedef struct page_table {
   pt_entry entries[PT_ENTRIES];
 } page_table;
 
-void paging_test(void);
+void vmm_paging_test(void);
 
 #endif

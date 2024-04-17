@@ -19,7 +19,9 @@ generic_isr_routine:
 	pushal	
 	# nb: when this is called from user mode we need to change the
 	# segment descriptor to use the kernel segments, now we leave this
+
 	call isr_handler
+
 	popal
 	# this is used to clean up the interrupt number we pushed before  
 	add $8, %esp
@@ -39,15 +41,16 @@ generic_exception_routine:
 	pushal	
 	# nb: when this is called from user mode we need to change the
 	# segment descriptor to use the kernel segments, now we leave this
+ 
 	call isr_handler
+
 	popal
 	# this is used to clean up the interrupt number we pushed before  
-	add $4, %esp
-	# restore the interrupt flag
-	sti
-	# now we return to what we were doing
-	iretl
+	add $8, %esp
 
+
+	# now we return to what we were doing
+ir: iretl	
 
 # -----------------------------------------------------------------
 # ------------------- INTERNAL TIMER ROUTINE S --------------------

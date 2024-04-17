@@ -4,6 +4,8 @@
 - implementare la gestione dei frame di memoria, reference : 
   - OSDev memory allocation: https://wiki.osdev.org/Memory_Allocation
   - OSDev page frame allocation: https://wiki.osdev.org/Page_Frame_Allocation 
+  - Qua spiega come accedere alle tabelle delle pagine attraverso il paging ricorsivo: https://wiki.osdev.org/User:Neon/Recursive_Paging
+
 -  scrivere un driver per la tastiera 
 - implementare lo shadow paging
 

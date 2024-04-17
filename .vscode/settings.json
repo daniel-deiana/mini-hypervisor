@@ -6,6 +6,8 @@
     "isr.h": "c",
     "pit.h": "c",
     "pic.h": "c",
-    "printf.h": "c"
+    "printf.h": "c",
+    "paging.h": "c",
+    "uvideo.h": "c"
   }
 }

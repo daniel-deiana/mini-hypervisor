@@ -11,8 +11,6 @@
 
 /*print eax, ecx, edx, ebx, esp, ebp, esi, and edi content to screen */
 
-
-
 // state of the cpu that we save entering an isr  
 typedef struct registers 
 {
@@ -23,7 +21,7 @@ typedef struct registers
   uint32_t ebx;
   uint32_t edx;
   uint32_t ecx;
-  uint32_t eax;
+  uint32_t eax; 
   uint32_t intr_number;
   uint32_t error_code;
   uint32_t eip;
@@ -34,7 +32,7 @@ typedef void (*isr_t)(regs_t*);
 
 void gpf_handler(regs_t* regs);
 void page_fault_handler(regs_t* regs);
-int emulate_high(unsigned int esp);
+int  emulate_high(regs_t* regs);
 
 // common dispatcher for isr
 void isr_handler(regs_t regs);

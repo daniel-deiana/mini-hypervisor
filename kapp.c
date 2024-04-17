@@ -44,7 +44,7 @@ struct GDT_entry {
 
 static struct GDT_entry GDT[16] = {
   {0x00},
-  {		// flat code segment
+  {		// flat code segment dpl = 0
     .limit    = 0xffff,
     .base_low = 0x00,
     .base_middle = 0x00,
@@ -52,7 +52,7 @@ static struct GDT_entry GDT[16] = {
     .granularity = 0xcf,
     .base_high   = 0x00
   },
-  {		// flat data segment
+  {		// flat data segment dpl = 0
     .limit    = 0xffff,
     .base_low = 0x00,
     .base_middle = 0x00,
@@ -60,7 +60,7 @@ static struct GDT_entry GDT[16] = {
     .granularity = 0xcf,
     .base_high   = 0x00
   },
-  {		// flat code segment, 16 bit
+  {		// flat code segment, 16 bit dpl = 3
     .limit    = 0xffff,
     .base_low = 0x00,
     .base_middle = 0x00,
@@ -68,7 +68,7 @@ static struct GDT_entry GDT[16] = {
     .granularity = 0xcf,
     .base_high   = 0x00
   },
-  {		// flat data segment, 16 bit
+  {		// flat data segment, 16 bit dpl = 3 
     .limit    = 0xffff,
     .base_low = 0x00,
     .base_middle = 0x00,
@@ -103,8 +103,8 @@ static struct GDT_entry GDT[16] = {
 };
 
 static struct IDT_entry IDT[256];
-static struct dt_register gdtr = {8 * 16, (uint32_t)&GDT};
-static struct dt_register idtr = {256 * 8, (uint32_t)&IDT};
+static struct dt_register gdtr = {8 * 16, &GDT};
+static struct dt_register idtr = {256 * 8, &IDT};
 uint8_t TSSIOMAP[26 * 4 + 0x2001];
 
 // external symbols
@@ -120,9 +120,7 @@ void kmain(uint32_t mem_start, uint32_t mem_end)
 {
   uint16_t *p;
   int trval = 56;
-
   clear();
-
   printf("Hello from the very stupid hypervisor!\n");
 
   p = (uint16_t *)&TSSIOMAP[25 * 4];
@@ -132,7 +130,6 @@ void kmain(uint32_t mem_start, uint32_t mem_end)
   GDT[7].base_low    = (uint32_t)TSSIOMAP & 0xffff;
   GDT[7].base_middle = ((uint32_t)TSSIOMAP >> 16) & 0xff;
   GDT[7].base_high   = ((uint32_t)TSSIOMAP >> 24) & 0xff;
-
 
   IDT[13].offs_low  = ((uint32_t)&gpf_routine) & 0xffff;
   IDT[13].offs_high = (((uint32_t)&gpf_routine) >> 16) & 0xffff;
@@ -149,14 +146,20 @@ void kmain(uint32_t mem_start, uint32_t mem_end)
   IDT[32].offs_high = (((uint32_t)&isr32) >> 16) & 0xffff;
   IDT[32].sel       = 8;
   IDT[32].flags     = /*0x8f*/ 0x8e;
-
+ 
   pmm_init(_kernel_p_start, _kernel_p_end, mem_end);
+
+  paddr_t* frame = pmm_alloc_frame();
+  printf("valore del frame libero restituito: %x\n", frame);
+  frame = pmm_alloc_frame();
+  printf("valore del frame libero restituito: %x\n", frame);
+
 
   register_isr_handler(&gpf_handler, 13);
   register_isr_handler(&page_fault_handler, 14);
   register_isr_handler(&pit_handler, 32);
 
-  asm volatile ("lgdt %0" : : "m"(gdtr));
+  asm volatile ("lgdt %0" : : "m" (gdtr));
   asm volatile ("lidt %0" : : "m" (idtr));
   asm volatile ("ltr  %0" : : "m" (trval));
 
@@ -171,10 +174,11 @@ void kmain(uint32_t mem_start, uint32_t mem_end)
 	"\tmovl %%eax,%%gs\n"
 	"\tmovl %%eax,%%ss\n"
 	: : : "eax", "memory");
-  printf("Going to invoke some real-mode code...\n");
-  asm volatile ("sti");
 
-  paging_test();
+
+  guest_code();
+
+  vmm_paging_test();
   pic_remap(PIC1_OFFSET, PIC2_OFFSET);
   pic_unmask_irq(0x00);
   pit_init(100);

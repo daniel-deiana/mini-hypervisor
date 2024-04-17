@@ -12,8 +12,8 @@ void register_isr_handler(isr_t handler_code, uint32_t isr_num) {
 void isr_handler(regs_t regs) 
 {
 
-  printf("ciao sono dentro l'interrupt n: %x routine definita prima!\n", 
-  regs.intr_number);
+  //printf("ciao sono dentro l'interrupt n: %x routine definita prima!\n", 
+//  regs.intr_number);
 
   isr_t handler = isr_handlers[regs.intr_number];
   
@@ -29,24 +29,15 @@ void page_fault_handler(regs_t* regs)
 
 void gpf_handler(regs_t* regs) 
 {
-  printf("gpf_handler: ERROR_CODE %x\n", regs->error_code);
-  printf("gpf_handler: EIP che ha generato il fault:  %x\n", regs->eip);
+  // printf("gpf_handler: ERROR_CODE %x\n", regs->error_code);
+  // printf("gpf_handler: EIP che ha generato il fault:  %x\n", regs->eip);
+  emulate_high(regs);
 }
 
-/*
-
-int emulate_high(unsigned int esp)
+int emulate_high(regs_t* regs)
 {
-  uint32_t *p = (unsigned int *)*addr;
-
+  uint32_t *p = (unsigned int *)(regs->eip);  
   
-  uint32_t *stack_addr = (unsigned int *)(esp);
-
-  for (int i = 0; i <= 7; i++) {
-    int reg = (unsigned int*) *(stack_addr + i);
-    printf("the content of the register is: %x\n", reg);
-  }
-
   printf("Emulating instruction at address %x: %x\n", p, *p);
 
   if ((*p & 0xf8ffff) == 0xc0200f) {
@@ -65,14 +56,12 @@ int emulate_high(unsigned int esp)
     eax &= ~1;
     eax &= ~0x8000;
     printf("        Corrected to %x\n", eax);
-    p = (uint32_t *)(esp + reg * 4);
+    p = (uint32_t *)(regs->edx);
     *p = eax;
-    *addr = *addr + 3;
+    regs->eip = regs->eip + 3;
 
     return 1;
   }
-
   printf("    Not emulated instruction: stop!\n");
   return 0;
 }
-*/

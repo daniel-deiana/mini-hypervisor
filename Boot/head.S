@@ -40,7 +40,7 @@ t1:
   jge t3
 
   movl %esi, %edx 
-  orl $0x003, %edx
+  orl $0x007, %edx
   movl %edx, (%edi)
 
 t2:
@@ -51,16 +51,16 @@ t2:
 
 t3:
   // setting up 2 directory entries, one for identity one for higher half
-	movl $(0x000B8000 | 0x003), page_table1 - 0xC0000000 + 1023 * 4
-  movl $(page_table1 - 0xC0000000 + 0x003), page_directory_table - 0xC0000000 + 0
-	
+	movl $(0x000B8000 | 0x007), page_table1 - 0xC0000000 + 1023 * 4
+  
+  // identity mapping
+  movl $(page_table1 - 0xC0000000 + 0x007), page_directory_table - 0xC0000000 + 0
 
+  // recursive mapping for the page tables
+  movl $(page_directory_table - 0xC0000000 + 0x007), page_directory_table - 0xC0000000 + 1023 * 4
 
-  // aggiungo mapping per la tabella temporanea
-  movl $(page_table_tmp - 0xC0000000 + 0x003), page_table_tmp - 0xC0000000 + 1023 * 4 
-  movl $(page_table_tmp - 0xC0000000 + 0x003), page_directory_table - 0xC0000000 + 1023 * 4 
-
-  movl $(page_table1 - 0xC0000000 + 0x003), page_directory_table - 0xC0000000 + 768 * 4
+  // higher half kernel mapping 
+  movl $(page_table1 - 0xC0000000 + 0x007), page_directory_table - 0xC0000000 + 768 * 4
 
   movl $(page_directory_table - 0xC0000000), %ecx 
   movl %ecx, %cr3
@@ -70,7 +70,6 @@ t3:
 	movl %ecx, %cr0
 
 	# Jump to higher half with an absolute jump. 
-
  	jmp t4
 
 

@@ -1,7 +1,5 @@
 .section	.data
 #------------------------------------------------------------------
-
-#------------------------------------------------------------------
 .globl saved_esp
 .globl regCR0
 .globl regMSW
@@ -12,9 +10,9 @@ saved_esp: .long	0
 
 .section	.text
 .code32
-.globl guest
+.globl guest_code
 
-guest:
+guest_code:
 	mov %esp, saved_esp
 
 	# initialize the Task-State Segment's SS0:ESP0 fields
@@ -31,7 +29,7 @@ guest:
 	pushl	$0x00000002		# image for EFLAGS (bit 1 must always be set)
 	pushl	$27			# image for CS register: 8 + 3
 	pushl	$trapdemo		# image for IP register
-	iretl				# enter Ring 3
+ir0:	iretl				# enter Ring 3
 
 #------------------------------------------------------------------
 trapdemo: # this procedure will be executed in Ring 3
@@ -40,9 +38,14 @@ trapdemo: # this procedure will be executed in Ring 3
 	movw	%ax, %ds		# with DS register
 
 	# here we try to execute a privileged 'mov' instruction
-	movl	%cr0, %edx		# current CR0 contents
+	movl %cr0, %edx		# current CR0 contents
 	mov	%edx, regCR0		# written to a variable
 
+	# Test shadow paging
+	#+----------------------------------------------------------------+
+	
+	#+----------------------------------------------------------------+
+	
 	# then we execute the unprivileged 'smswl' instruction
 	smswl	%eax			# current MSW contents
 	mov	%eax, regMSW		# written to a variable
@@ -53,9 +56,10 @@ trapdemo: # this procedure will be executed in Ring 3
 #------------------------------------------------------------------
 	.align	16			# ensure stack alignment
 	.space	512			# region for ring3 stack
-tos3:					# label for the stacktop
 
+tos3:					# label for the stacktop
 .section	.data
 	.align	0x1000
+
 #------------------------------------------------------------------
-	.end
+.end

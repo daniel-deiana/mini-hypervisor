@@ -6,6 +6,8 @@
 extern void page_directory_table(void);
 extern void page_table_tmp(void);
 
+#define PTD_BASE_ADDRESS 0xFFC00000
+
 #define PAGE_SIZE  4096
 #define PT_ENTRIES 1024
 
@@ -30,5 +32,6 @@ void vmm_paging_test(void);
 
 //+--------------------------+
 int vmm_init_shadow_table(void);
+int vmm_modify_page_attributes(unsigned long page_adddr, unsigned long page_attr);
 
 #endif

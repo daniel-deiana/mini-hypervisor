@@ -176,9 +176,12 @@ void kmain(uint32_t mem_start, uint32_t mem_end)
 	: : : "eax", "memory");
 
 
+
+
   guest_code();
 
   vmm_paging_test();
+
   pic_remap(PIC1_OFFSET, PIC2_OFFSET);
   pic_unmask_irq(0x00);
   pit_init(100);

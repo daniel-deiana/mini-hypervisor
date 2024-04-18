@@ -3,8 +3,7 @@
 
 // Guest shadow paging structures
 //+------------------------------------------------------------+
-
-
+extern unsigned int * guest_ptd;
 
 //+------------------------------------------------------------+
 
@@ -28,18 +27,44 @@ void vmm_paging_test(void) {
    printf("questo è una roba che non dovrebbe faultare %x", *p);
 }
 
-void * vmm_allocate_page(vaddr_t page_vaddr) {
-
-}
-
+/*+-------------------------------------------------------------+*/
+/*+------------------------Shadow paging------------------------+*/
 
 /*
-  This function Initializes a shadow page table for a guest virtual machine
-  First it copies the hypervisor traductions, then intializes all other entries to 0 
+  This function modifies the attributes of a page given a pointer to its location in the virtual address space
+  nb: it is better to have 2 pair of function for each page attribute (set/unset)
 */
-int vmm_init_shadow_table() {
-  /* Modify the write protection of the guest page table */
+int vmm_modify_page_attributes(unsigned long page_addr, unsigned long page_attr)
+{
+  // get the reference to the pte that points to the physical page
+  unsigned long ptde_index = (page_addr >> 22) & 0x3ff;
+  printf("valore dell indice della ptde %x\n", ptde_index);
   
+  page_table *pt = (unsigned long)PTD_BASE_ADDRESS + ptde_index;
+  unsigned long pte_index = (page_addr >> 12) & 0x3ff;
+  printf("valore dell indice della pte %x\n", pte_index);
+
+  printf("Il valore della pte che mi traduce l'indirizzo %x e' %x\n", page_addr,
+  pt->entries[pte_index]);
+
+  /*Set the page as Write protected,  */
+  pt->entries[pte_index] &= (pt_entry)~PTE_RW;
+  pt->entries[pte_index] &= (pt_entry)~PTE_US;
+  pt->entries[pte_index] |= (pt_entry)PTE_P;
+
+  printf("Il valore della pte che mi traduce l'indirizzo %x e' %x\n", page_addr,
+         pt->entries[pte_index]);
 }
+/*
+  This function Initializes a shadow page table for a guest virtual machine
+  First it copies the hypervisor mappings , then intializes all other entries to 0 
+*/
+int vmm_init_shadow_table(void) 
+{
+  /* 
+    Modify the write protection of the guest page table by making the page of the guest ptd write protected 
+  */
+  vmm_modify_page_attributes(guest_ptd, PTE_RW);
 
-
+  return 1;
+}

@@ -66,7 +66,7 @@ t3:
   movl %ecx, %cr3
 
   movl %cr0, %ecx
-	orl $0x80010000, %ecx
+	orl $0x80000000, %ecx
 	movl %ecx, %cr0
 
 	# Jump to higher half with an absolute jump. 

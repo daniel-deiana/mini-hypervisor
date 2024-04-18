@@ -4,7 +4,8 @@
 #include "paging.h"
 #include "isr.h"
 
-static uint32_t *guest_ptd;
+// pointer to the guest page table directory
+uint32_t *guest_ptd;
 
 static isr_t isr_handlers[256];
 

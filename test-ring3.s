@@ -32,7 +32,7 @@ guest_code:
 	pushl	$0x00000002		# image for EFLAGS (bit 1 must always be set)
 	pushl	$27			# image for CS register: 8 + 3
 	pushl	$trapdemo		# image for IP register
-ir0:	iretl				# enter Ring 3
+ir0:	iretl				# enter Ring 30
 
 #------------------------------------------------------------------
 trapdemo: # this procedure will be executed in Ring 3
@@ -44,7 +44,6 @@ trapdemo: # this procedure will be executed in Ring 3
 	movl %cr0, %edx		# current CR0 contents
 	mov	%edx, regCR0		# written to a variable
 
-	
 	//+--------------------------------------------------------------+
 
 	/*
@@ -54,14 +53,15 @@ trapdemo: # this procedure will be executed in Ring 3
 f1:	movl $guest_page_directory, %eax
 		movl %eax, %cr3
 
-		
-
+	/* Try to modify the guest ptd to trigger a fault */
+f3:		movl $3 , guest_page_directory
+			
 	/* Guest modifies the value of cr0 to enable paging */
 
 	//+--------------------------------------------------------------+
 	
 	# then we execute the unprivileged 'smswl' instruction
-f2:	smswl	%eax			# current MSW contents
+f2:	smswl	%eax				# current MSW contents
 	mov	%eax, regMSW		# written to a variable
 
 	# now we try to execute the privileged 'hlt' instruction
@@ -70,7 +70,7 @@ f2:	smswl	%eax			# current MSW contents
 #------------------------------------------------------------------
 	.align	16			# ensure stack alignment
 	.space	512			# region for ring3 stack
-tos3:					# label for the stacktop
+tos3:							# label for the stacktop
 .section	.data
 	.align	0x1000
 
